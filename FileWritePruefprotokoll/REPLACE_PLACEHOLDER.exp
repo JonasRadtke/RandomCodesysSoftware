@@ -1,0 +1,53 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION REPLACE_PLACEHOLDER : UINT
+VAR_INPUT
+	PT : POINTER TO ARRAY[0..32767] OF BYTE;
+	Placeholder: STRING(STRING_LENGTH);
+	Replacement: STRING(512);
+	SIZE: UINT;
+END_VAR
+VAR
+	retVal: INT;
+	lplace: INT;
+	lrep: INT;
+	end: INT;
+ 	pos: INT;
+	i: INT;
+END_VAR
+(* @END_DECLARATION := '0' *)
+retVal := BUFFER_SEARCH(	PT:= PT,
+								SIZE:=SIZE,
+								STR:=Placeholder,
+								POS:= 0,
+								IGN:= 0);
+
+IF (retVal <0) THEN (* String not found *)
+	REPLACE_PLACEHOLDER := SIZE;
+	RETURN;
+END_IF;
+
+lplace := LEN(Placeholder);
+lrep := LEN(Replacement);
+
+(* first move the upper part of the buffer to make space for the string *)
+IF  lrep<=lplace THEN (*New String shorter than old String, copy  Array ->*)
+	end := Size + lrep - lplace;
+	FOR i:= retVal TO end BY 1 DO
+		pt^[i+lrep] := pt^[i + lplace];
+	END_FOR;
+ELSE		(* New String longer then old String, copy Array from behind*)
+	end := retVal + lrep - lplace;
+	FOR i := UINT_TO_INT(SIZE+lrep-lplace) - 1 TO end BY -1 DO
+		pt^[i] := pt^[i-lrep + lplace ];
+	END_FOR;
+END_IF;
+
+(*Copy new String in Buffer*)
+_STRING_TO_BUFFER(STR:=Replacement, POS:=retVal, PT:=PT, SIZE:=SIZE+lrep-lplace);
+
+REPLACE_PLACEHOLDER :=  SIZE + lrep - lplace;
+END_FUNCTION

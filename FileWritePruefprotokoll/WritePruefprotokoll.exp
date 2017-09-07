@@ -1,0 +1,188 @@
+
+(* @NESTEDCOMMENTS := 'Yes' *)
+(* @PATH := '' *)
+(* @OBJECTFLAGS := '0, 8' *)
+(* @SYMFILEFLAGS := '2048' *)
+FUNCTION WritePruefprotokoll: INT
+VAR_INPUT
+	WriteData: BOOL;
+
+	fileTemplate: STRING(STRING_LENGTH);
+	fileOutput: STRING(STRING_LENGTH);
+
+	Placeholder_1: STRING(STRING_LENGTH);
+	Replacement_1: STRING(STRING_LENGTH);
+	Placeholder_2: STRING(STRING_LENGTH);
+	Replacement_2: STRING(STRING_LENGTH);
+	Placeholder_3: STRING(STRING_LENGTH);
+	Replacement_3: STRING(STRING_LENGTH);
+	Placeholder_4: STRING(STRING_LENGTH);
+	Replacement_4: STRING(STRING_LENGTH);
+
+	Placeholder_5: STRING(STRING_LENGTH);
+	Replacement_5: STRING(STRING_LENGTH);
+	Placeholder_6: STRING(STRING_LENGTH);
+	Replacement_6: STRING(STRING_LENGTH);
+	Placeholder_7: STRING(STRING_LENGTH);
+	Replacement_7: STRING(STRING_LENGTH);
+	Placeholder_8: STRING(STRING_LENGTH);
+	Replacement_8: STRING(STRING_LENGTH);
+
+	Placeholder_9: STRING(STRING_LENGTH);
+	Replacement_9: STRING(STRING_LENGTH);
+	Placeholder_10: STRING(STRING_LENGTH);
+	Replacement_10: STRING(STRING_LENGTH);
+	Placeholder_11: STRING(STRING_LENGTH);
+	Replacement_11: STRING(STRING_LENGTH);
+	Placeholder_12: STRING(STRING_LENGTH);
+	Replacement_12: STRING(STRING_LENGTH);
+
+	Pruefdruck: ARRAY [0..29] OF Pruefdruck;
+END_VAR
+VAR
+	dataBufferPtr: POINTER TO ARRAY[0..512] OF BYTE;
+	dataBuffer: ARRAY[0..512] OF BYTE;
+	buffPos: INT;
+	ReadBuffer: ARRAY[0..10000] OF BYTE;
+	buffPtr: POINTER TO ARRAY[0..10000] OF BYTE;
+	fSize: DINT;
+	fSizeUint: UINT;
+	hFile: DWORD;
+
+	i: INT;
+	tempStr: STRING(20);
+	Datensatz:STRING(512);
+END_VAR
+VAR CONSTANT
+
+	DatensatzTemplate : STRING(512):='<tr class="result">
+<td class="z1">%%Nummer%%</td>
+<td class="z2">
+<table>
+<tr>
+<td>%%Druck1%%</td>
+<td>%%Druck2%%</td>
+<td>%%Druck3%%</td>
+<td>%%Druck4%%</td>
+<td>%%Druck5%%</td>
+</tr>
+</table>
+</td>
+</tr>';
+
+
+
+END_VAR
+
+(* @END_DECLARATION := '0' *)
+IF NOT WriteData THEN
+	WritePruefprotokoll := 0;
+	RETURN;
+END_IF;
+
+fSize := SysFileGetSize(FileName := fileTemplate); (*Get File Size for Mem Allocation and FileRead*)
+IF  (fSize = 0) THEN
+	WritePruefprotokoll	:= -1;
+	RETURN;
+END_IF;
+
+hFile := SysFileOpen(FileName:=  fileTemplate, Mode:= 'r'); (*Datei im ReadMode öffnen, hier die Vorlage*)
+buffPtr := ADR(ReadBuffer);	(*Pointer auf Startadresse des ReadBuffer*)
+SysFileRead(File:=hFile, Buffer:=buffPtr,Size:= fSize);	(*Datei komplett einlesen*)
+SysFileClose(File:=  hFile);	(*Datei schliessen*)
+
+
+fSizeUint := DINT_TO_UINT(fSize); (*String Länge konvertieren*)
+
+(*Platzhalter mit Ersatz füllen, wenn Platzhalter nicht leer ist! Leerer Platzhalter = nichts ersetzen*)
+(*fSizeUint enthält immer die neue Größe des Strings und wird beim nächsten ersetzen mit übergeben*)
+IF (LEN(Placeholder_1) <> 0) THEN		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_1, Replacement :=  Replacement_1, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_2) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_2, Replacement :=  Replacement_2, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_3) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_3, Replacement :=  Replacement_3, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_4) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_4, Replacement :=  Replacement_4, SIZE:=fSizeUint);	END_IF;
+
+IF (LEN(Placeholder_5) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_5, Replacement :=  Replacement_5, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_6) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_6, Replacement :=  Replacement_6, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_7) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_7, Replacement :=  Replacement_7, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_8) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_8, Replacement :=  Replacement_8, SIZE:=fSizeUint);	END_IF;
+
+IF (LEN(Placeholder_9) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_9, Replacement :=  Replacement_9, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_10) <> 0) THEN		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_10, Replacement :=  Replacement_10, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_11) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_11, Replacement :=  Replacement_11, SIZE:=fSizeUint);	END_IF;
+IF (LEN(Placeholder_12) <> 0) THEN 		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= Placeholder_12, Replacement :=  Replacement_12, SIZE:=fSizeUint); 	END_IF;
+
+dataBufferPtr := ADR(Datensatz);
+
+(*Zeilen für die verschiedenen Daten zusammenstellen, 30 Zeilen maximal*)
+FOR i:=0 TO 29 BY 1 DO
+	IF Pruefdruck[i].Druck_1 > 0.1 THEN	(*Prüfen ob Zeile benötigt wird, wenn Druck 0, Zeile nicht schreiben*)
+		Datensatz := DatensatzTemplate;	(*Vorlage für eine Zeile umkopieren*)
+		buffPos:= LEN(Datensatz);			(*Länge der Vorlage ermitteln, für die Replace Funktion*)
+
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Nummer%%', Replacement :=  INT_TO_STRING(i+1) , SIZE:=buffPos);	(*Nummer in Zeile ersetzen*)
+
+		(*Druck 1*)
+		IF Pruefdruck[i].Druck_1 < 0.1 THEN	(*Wenn kein Prüfdruck, < 0.1*)
+			tempStr := ' ';	(*Leerzeichen einfügen*)
+		ELSE
+			tempStr := REAL_TO_STRF(Pruefdruck[i].Druck_1 , 1 , ',' );	(*Druck in String umwandeln. 1 Nachkommstelle, Trennzeichen Komma*)
+			tempStr := CONCAT(tempStr, ' bar');	(*bar anhängen*)
+		END_IF;
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Druck1%%', Replacement :=  tempStr , SIZE:=buffPos);	(*Platzhalter für ersten Druck im String ersetzen*)
+
+		(*Druck 2*)
+		IF Pruefdruck[i].Druck_2 < 0.1 THEN
+			tempStr := ' ';
+		ELSE
+			tempStr := REAL_TO_STRF(Pruefdruck[i].Druck_2 , 1 , ',' );
+			tempStr := CONCAT(tempStr, ' bar');
+		END_IF;
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Druck2%%', Replacement :=  tempStr , SIZE:=buffPos);
+
+		(*Druck 3*)
+		IF Pruefdruck[i].Druck_3 < 0.1 THEN
+			tempStr := ' ';
+		ELSE
+			tempStr := REAL_TO_STRF(Pruefdruck[i].Druck_3 , 1 , ',' );
+			tempStr := CONCAT(tempStr, ' bar');
+		END_IF;
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Druck3%%', Replacement :=  tempStr , SIZE:=buffPos);
+
+		(*Druck 4*)
+		IF Pruefdruck[i].Druck_4 < 0.1 THEN
+			tempStr := ' ';
+		ELSE
+			tempStr := REAL_TO_STRF(Pruefdruck[i].Druck_4 , 1 , ',' );
+			tempStr := CONCAT(tempStr, ' bar');
+		END_IF;
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Druck4%%', Replacement :=  tempStr , SIZE:=buffPos);
+
+		(*Druck 5*)
+		IF Pruefdruck[i].Druck_5 < 0.1 THEN
+			tempStr := ' ';
+		ELSE
+			tempStr := REAL_TO_STRF(Pruefdruck[i].Druck_5 , 1 , ',' );
+			tempStr := CONCAT(tempStr, ' bar');
+		END_IF;
+		buffPos := REPLACE_PLACEHOLDER(PT:= dataBufferPtr, Placeholder:= '%%Druck5%%', Replacement :=  tempStr , SIZE:=buffPos);
+
+		(*Ganze Zeile in den großen String einfügen (Ganze Datei)*)
+		tempStr := CONCAT('<!--ZEILE' , INT_TO_STRING(i+1));	(*Platzhalter, welcher ersetzt werden soll zusammen stellen Format immer <!--ZEILEX-->*)
+		tempStr := CONCAT(tempStr , '-->');
+		fSizeUint := REPLACE_PLACEHOLDER(PT:= buffPtr, Placeholder:= tempStr, Replacement :=  Datensatz, SIZE:=fSizeUint); (*Zusammengestelle Zeile in den Platzhalter des gesamten Strings einfügen, wie bei den Platzhaltern ganz oben*)
+
+	END_IF;
+END_FOR;
+
+hFile := SysFileOpen(FileName:= fileOutput, Mode:= 'w');	(*Datei öffnen/ erstellen falls nicht vorhanden, Temp Datei, wird danach hochgeladen*)
+SysFileWrite(File:=hFile, Buffer:=buffPtr,Size:= UINT_TO_DINT(fSizeUint)); 	(*Zusammengestellten String (ganze Datei) schreiben*)
+SysFileClose(File:=  hFile);	(*Datei schliessen*)
+
+ WritePruefprotokoll := 1 ; (*Datei Erfolgreich geschrieben*)
+
+
+
+
+
+
+END_FUNCTION
